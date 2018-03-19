@@ -1,3 +1,8 @@
+## How to run/build:
+yarn
+truffle compile
+truffle migrate --reset
+
 ## Token Information
 Token Name: Passcoin
 Symbol: PASS
