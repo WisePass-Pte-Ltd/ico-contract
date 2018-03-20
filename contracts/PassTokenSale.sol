@@ -92,10 +92,10 @@ contract ERC20 {
 contract StandardToken is ERC20 {
   using SafeMath for uint256;
 
-  mapping(address => uint256) balances;
+  mapping(address => uint256) public balances;
   mapping (address => mapping (address => uint256)) internal allowed;
 
-  uint256 totalSupply_;
+  uint256 public totalSupply_;
 
   /**
   * @dev total number of tokens in existence
@@ -226,7 +226,7 @@ contract Pausable is Ownable {
 
 // ================= Passcoin  start =======================
 contract PassCoin is StandardToken, Pausable {
-  string public constant name = 'Passcoin';
+  string public constant name = 'Pass Token';
   string public constant symbol = 'PASS';
   uint256 public constant decimals = 18;
   address public tokenSaleAddress;
@@ -305,36 +305,35 @@ contract PassContributorWhitelist is Ownable {
 contract PassTokenSale is Pausable {
   using SafeMath for uint256;
 
-  PassCoin pass;
-  PassContributorWhitelist whitelist;
+  PassCoin public pass;
+  PassContributorWhitelist public whitelist;
   mapping(address => uint256) public participated;
 
   address public ethFundDepositAddress;
   address public passDepositAddress;
 
-
-  uint256 public constant tokenCreationCap = 500000000 * 10**18;
+  uint256 public constant tokenCreationCap = 375000000 * 10**18;
   uint256 public totalTokenSold = 0;
 
-  uint256 constant privateRate = 14750;
-  uint256 constant preRate = 12650;
-  uint256 constant sale1Rate = 12050;
-  uint256 constant sale2Rate = 11550;
-  uint256 constant baseRate = 10500;
+  uint256 public constant privateRate = 14200;
+  uint256 public constant preRate = 12200;
+  uint256 public constant sale1Rate = 11700;
+  uint256 public constant sale2Rate = 11200;
+  uint256 public constant baseRate = 10100;
 
   uint256 public fundingStartTime;
   uint256 public fundingPreEndTime;
   uint256 public fundingSale1EndTime;
   uint256 public fundingSale2EndTime;
-  uint256 public fundingEndTime; 
+  uint256 public fundingEndTime;
 
   uint256 public constant minContribution = 0.1 ether;
-  uint256 public constant minPreContribution = 1 ether;
-  uint256 public constant minPrivateContribution = 50 ether;
-  uint256 constant privateCap = 8000 ether;
-  uint256 constant preCap = 4000 ether;
-  uint256 constant sale1Cap = 16000 ether;
-  uint256 constant sale2Cap = 12000 ether;
+  uint256 public constant minPreContribution = 0.1 ether;
+  uint256 public constant minPrivateContribution = 15 ether;
+  uint256 public constant privateCap = 9000 ether;
+  uint256 public constant preCap = 9000 ether;
+  uint256 public constant sale1Cap = 6000 ether;
+  uint256 public constant sale2Cap = 6000 ether;
 
   bool public isFinalized;
 
@@ -382,14 +381,14 @@ contract PassTokenSale is Pausable {
     require (now >= fundingStartTime);
     uint256 hardCap = getHardCap();
 
-    if (_value >= minPrivateContribution ){ // private sale
-      require (now <= fundingEndTime.add(15 days));
+    if (_value >= minPrivateContribution ){
+      require (now <= fundingEndTime);
       rate = privateRate;
       hardCap = privateCap.mul(privateRate);
     }else if (now <= fundingSale2EndTime){
-      if (now <= fundingPreEndTime){ // pre sale
+      if (now <= fundingPreEndTime){
         require (_value >= minPreContribution);
-      }else{ // public sale
+      }else{
         require (_value >= minContribution);
       }
       rate = getRate();
@@ -431,7 +430,7 @@ contract PassTokenSale is Pausable {
     return;
   }
 
-  function getRate() constant returns (uint256) {
+  function getRate() internal constant returns (uint256) {
     uint256 currentRate = baseRate;
 
     if (now <= fundingPreEndTime) {
@@ -445,7 +444,7 @@ contract PassTokenSale is Pausable {
     return currentRate;
   }
 
-  function getHardCap() constant returns (uint256) {
+  function getHardCap() internal constant returns (uint256) {
     uint256 hardCap = 0;
 
     if (now <= fundingPreEndTime) {
